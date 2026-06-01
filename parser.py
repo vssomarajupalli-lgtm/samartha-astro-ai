@@ -359,10 +359,35 @@ for pk in ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu
         vargottama_score = 100.0
     else:
         vargottama_score = 50.0
-    badhaka_maraka_score = 50.0
+        
     aspect_score = 50.0
+    for other_pk in ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"]:
+        if other_pk == pk:
+            continue
+        other_sign = d1_placements.get(other_pk, 1)
+        other_house = ((other_sign - lagna_sign + 12) % 12) + 1
+        
+        aspected_houses = set()
+        aspected_houses.add(((other_house - 1 + 6) % 12) + 1)
+        
+        if other_pk == "Saturn":
+            aspected_houses.add(((other_house - 1 + 2) % 12) + 1)
+            aspected_houses.add(((other_house - 1 + 9) % 12) + 1)
+        elif other_pk == "Mars":
+            aspected_houses.add(((other_house - 1 + 3) % 12) + 1)
+            aspected_houses.add(((other_house - 1 + 7) % 12) + 1)
+        elif other_pk == "Jupiter":
+            aspected_houses.add(((other_house - 1 + 4) % 12) + 1)
+            aspected_houses.add(((other_house - 1 + 8) % 12) + 1)
+            
+        if house_num in aspected_houses:
+            if other_pk in ["Jupiter", "Venus"]:
+                aspect_score += 25.0
+            elif other_pk in ["Saturn", "Mars", "Rahu", "Ketu"]:
+                aspect_score -= 20.0
+    aspect_score = max(0.0, min(100.0, aspect_score))
     
-    base_str = (0.50 * house_score) + (0.10 * nak_score) + (0.08 * shad_score) + (0.08 * varga_score) + (0.08 * vargottama_score) + (0.08 * badhaka_maraka_score) + (0.08 * aspect_score)
+    base_str = (0.58 * house_score) + (0.10 * nak_score) + (0.08 * shad_score) + (0.08 * varga_score) + (0.08 * vargottama_score) + (0.08 * aspect_score)
     
     is_ucha = (planet_sign == exaltation_signs.get(pk))
     is_neecha = (planet_sign == debilitation_signs.get(pk))
