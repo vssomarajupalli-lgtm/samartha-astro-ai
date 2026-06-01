@@ -1,15 +1,15 @@
-# సమర్థ జ్యోతిష్య ఇంజన్ (Samartha Astro Engine)
+# Samartha Astro AI (సమర్థవాస్తు - ఆర్కిటెక్ట్ ఎడిషన్)
 
-## 1. ప్రాజెక్ట్ కోర్ కాన్సెప్ట్ (Core Concept)
-ఈ సాఫ్ట్‌వేర్ యొక్క ప్రధాన లక్ష్యం ఆల్రెడీ ప్రింట్ అయి ఉన్న 85+ పేజీల ఒరిజినల్ పిడిఎఫ్ నివేదికలోని ఫలిత భాగాలను (Text Blocks) ఏమాత్రం మార్చకుండా, వాటి తీవ్రతను మరియు ఖచ్చితత్వాన్ని తెలియజేసే ఒక "నిశ్చయాత్మక డేటా బార్" (Deterministic Data Bar) ను జోడించడం.
+Advanced Vedic Astrology Computational Engine built with high-precision astronomical data models, localized planet strength matrices (Graha Bala), and an intelligent 40:30:30 questionnaire prediction framework.
 
-## 2. సిస్టమ్ గోల్స్ (System Goals)
-* **Zero Hallucination:** రన్‌టైమ్‌లో AI స్వంతంగా ఎటువంటి జ్యోతిష్య అంచనాలను లేదా టెక్స్ట్‌ను జనరేట్ చేయకూడదు.
-* **Pure Data Pull-Out:** జేసన్ ఫైళ్లలో ముందే లెక్కించబడి ఉన్న షడ్బల శాతాలు, సాముదాయక అష్టకవర్గ బిందువులు, మరియు అంశాల వారీ గ్రహ బలాలను మాత్రమే సేకరించి పర్సంటేజ్ మరియు గ్రేడింగ్ ఇవ్వాలి.
-* **Personalized Intensity:** సాధారణ (Generic) ఫలితాలను జాతకుడి వ్యక్తిగత గ్రహ బలానికి అనుగుణంగా తీవ్రతను (Intensity Score) మార్చి చూపించడం.
+## 📁 Repository Directory Structure
 
-## 3. సింగిల్ సోర్స్ ఆఫ్ ట్రూత్ (Dynamic Data Sources)
-ఇంజన్ రన్‌టైమ్‌లో పాస్ చేయబడే క్లయింట్ పేరు (`[client_name]`) ఆధారంగా కింది రెండు ఫైళ్ల నుండి మాత్రమే డేటాను రీడ్ చేస్తుంది:
-1. `[client_name]_machine_index.json` (దశా టైమ్‌లైన్స్ మరియు ఇండెక్స్ సోర్స్)
-2. `[client_name]_canonical_content.json` (షడ్బల, SAV బిందువులు, మరియు అంశాల వారీ బలాలు)
-[Samrtha Vastu - Astro Engine Specification](samartha_astro_engine_architecture.md)
+```text
+├── archive/                             # Legacy references and old frameworks
+│   ├── RULES.md                         # Old planet strength guidelines
+│   └── QUESTIONS_MATRIX.md               # Legacy multi-topic questionnaire layout
+├── samartha_astro_engine_architecture.md # Core Math & Computational Engine Spec (Source of Truth)
+├── samartha_master_questionnaire.md     # 40:30:30 Weightage Query Logic & 35+ Master Questions
+├── parser.py                            # Main Python execution engine
+├── _canonical_content.json             # Core chart data inputs
+└── README.md                            # Documentation and repository overview (This file)

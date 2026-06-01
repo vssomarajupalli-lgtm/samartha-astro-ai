@@ -1,0 +1,38 @@
+# Samartha Astro AI — Core Computational Engine Architecture
+
+## 1. Core Planetary Strength Engine (Graha Bala)
+- **Bhava Sthana Bala Weight:** Exactly 58% (0.58).
+- **Master Strength Equation:**
+  $$base\_str = (0.58 \times house\_score) + (0.10 \times nak\_score) + (0.08 \times shad\_score) + (0.08 \times varga\_score) + (0.08 \times vargottama\_score) + (0.08 \times aspect\_score)$$
+- **Global Constraints:**
+  * Strict Integer Rounding: All final planetary and house outputs must be rounded to clean integers (no decimal/floating-point clutter).
+  * Ceiling Cap: The absolute maximum output for any structural computation is capped at 100%.
+  * Debilitated-Retrograde (Neecha-Vakra) Policy: Zero additional bonus marks are allocated for a planet that is both debilitated and retrograde. It must evaluate purely based on standard baseline metrics.
+
+## 2. Dynamic Planetary Aspects (Drishti Bala)
+- **Baseline:** Initialize `aspect_score = 50.0`.
+- **Universal Rule:** All planets cast a 100% full aspect on the 7th house/position relative to their current 1-indexed house.
+- **Special Parashara Aspects:**
+  * Saturn (Sat): Casts additional full aspects on the 3rd and 10th houses from its position.
+  * Mars (Mar): Casts additional full aspects on the 4th and 8th houses from its position.
+  * Jupiter (Jup): Casts additional full aspects on the 5th and 9th houses from its position.
+- **Impact Scoring Modifiers:**
+  * Natural Benefic Aspect (Jupiter, Venus): Add +25.0 to the target planet's `aspect_score`.
+  * Natural Malefic Aspect (Saturn, Mars, Rahu, Ketu): Subtract -20.0 from the target planet's `aspect_score`.
+  * Clamp Guard: Final `aspect_score` must be strictly clamped between 0.0 and 100.0.
+
+## 3. Vimshottari Dasha Timeline Triad
+- **Expansion Level:** Parse the runtime dasha sequence down to three deep tiers: Mahadasha (MD) -> Antardasha (AD) -> Pratyantardasha (PD).
+- **UI Presentation:** Generate a unified temporal matrix rendering the current active MD Lord, AD Lord, and PD Lord side-by-side along with their calculated core strength percentages.
+
+## 4. Nakshatra Pada Sade Sati (Pada-Centric Rolling Transit)
+- **Core Concept:** Completely scrap legacy rashi/sign-boundary based transit checks. All tracking is anchored to the exact Natal Moon longitude ($\lambda_M$).
+- **Rolling Pada Saameepya Windows:**
+  * Core Peak Impact Phase: $[\lambda_M - 15^\circ, \lambda_M + 15^\circ]$ (Represents the 9-pada intensive rolling zone).
+  * Total Wave Transit Window: $[\lambda_M - 45^\circ, \lambda_M + 45^\circ]$ (Represents the full 27-pada rolling wave).
+- **Temporal Forecasting:** Loop through the 30-year Saturn orbital cycle across a 100-year human lifecycle simulation to pre-compute the exact calendar start/end date windows for the 3 to 4 lifetime occurrences.
+- **Conditional Intensity Engine:** Trigger the complete live transit computation of the remaining 9 planets exclusively when the temporal window of Sade Sati is active, evaluating the overlapping lifecycle impact.
+
+## 5. Runtime Overrides & Custom Date Flag
+- **Default Execution:** Automatically grab the live server/hardware system clock using Python's `datetime` module to fetch current transit positions.
+- **On-Demand Custom Gate:** Expose an override property `check_custom_transit = True`. When supplied with a targeted historical or future date, the system suspends the live clock and evaluates the full nakshatra pada transit grid for that explicit date.
