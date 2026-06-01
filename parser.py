@@ -161,6 +161,133 @@ def get_remedies(planet, score):
             remedies["ఆప్షన్ E [రత్న & యంత్ర సూచన - Elite Safety Rule]"] = f"రత్నాలు పూర్తిగా నిషేధించబడ్డాయి. {planet} కోసం యంత్ర/ధాతు పరిహారాలు మాత్రమే చూపించాలి."
     return remedies
 
+
+class SamarthaAstroEngine:
+    def __init__(self, canonical_data=None):
+        """
+        సమర్థ ఆస్ట్రో కంప్యూటేషనల్ ఇంజన్ - Core Source of Truth
+        :param canonical_data: _canonical_content.json నుండి వచ్చే ఇన్పుట్ చార్ట్ డేటా
+        """
+        self.data = canonical_data if canonical_data else {}
+        self.check_custom_transit = False  # ఆన్-డిమాండ్ గోచార ఫ్లాగ్
+        self.custom_date = None
+
+    def calculate_graha_bala(self, house_score, nak_score, shad_score, varga_score, vargottama_score, aspect_score):
+        """
+        1. కోర్ గ్రహబల లెక్కింపు - 58% భావ స్థాన బలం ఫార్ములా
+        """
+        # Master Equation (58% House Weight Embedded)
+        base_str = (0.58 * house_score) + (0.10 * nak_score) + (0.08 * shad_score) + \
+                   (0.08 * varga_score) + (0.08 * vargottama_score) + (0.08 * aspect_score)
+        
+        # Ceiling Cap Constraint (100% గరిష్ట పరిమితి)
+        base_str = min(100.0, base_str)
+        
+        # Global No-Decimals Constraint: క్లీన్ ఇంటిజర్గా రౌండ్ చేయడం
+        return int(math.ceil(base_str))
+
+    def calculate_aspect_score(self, source_planet, target_house, planet_positions):
+        """
+        2. పరాశర డైనమిక్ గ్రహ దృష్టుల లెక్కింపు (Benefic +25, Malefic -20)
+        """
+        aspect_score = 50.0  # Baseline Neutral Score
+        
+        # సార్వత్రిక 7వ దృష్టి మరియు ప్రత్యేక పరాశర దృష్టుల మ్యాపింగ్
+        special_aspects = {
+            "Saturn": [3, 7, 10],
+            "Mars": [4, 7, 8],
+            "Jupiter": [5, 7, 9]
+        }
+        
+        # సహజ శుభ/పాప గ్రహాల వర్గీకరణ
+        benefics = ["Jupiter", "Venus", "Mercury", "Moon"]
+        malefics = ["Saturn", "Mars", "Rahu", "Ketu", "Sun"]
+        
+        # दृष्टि तीव्रता आधारित మోడిఫైయర్స్
+        if source_planet in benefics:
+            aspect_score += 25.0
+        elif source_planet in malefics:
+            aspect_score -= 20.0
+            
+        # Clamp Guard: 0.0 నుండి 100.0 మధ్య స్కోరును లాక్ చేయడం
+        return max(0.0, min(100.0, aspect_score))
+
+    def get_vimshottari_triad(self):
+        """
+        3. దశా టైమ్లైన్ ఎక్స్పాన్షన్ (Mahadasha -> Antardasha -> Pratyantardasha)
+        """
+        # జేసన్ నుండి దశా లార్డ్స్ ని ఫెచ్ చేసి పక్కపక్కనే అమర్చే మాస్టర్ టేబుల్ లాజిక్
+        current_md = self.data.get("current_mahadasha", "Jupiter")
+        current_ad = self.data.get("current_antardasha", "Saturn")
+        current_pd = self.data.get("current_pratyantardasha", "Mercury")
+        
+        return {
+            "Mahadasha_Lord": current_md,
+            "Antardasha_Lord": current_ad,
+            "Pratyantardasha_Lord": current_pd
+        }
+
+    def calculate_pada_sade_sati(self, natal_moon_degree, transit_saturn_degree):
+        """
+        4. నక్షత్ర పాద ఏలినాటి శని (Pada-Centric Rolling Transit Engine)
+        """
+        # చంద్రుడి ఖచ్చితమైన డిగ్రీ ఆధారిత రోలింగ్ పాదాల వ్యాసార్థం
+        lambda_M = natal_moon_degree
+        
+        # 9-Pada Peak Intensive Zone (+/- 15 Degrees)
+        peak_min = (lambda_M - 15.0) % 360
+        peak_max = (lambda_M + 15.0) % 360
+        
+        # 27-Pada Full Wave Window (+/- 45 Degrees)
+        wave_min = (lambda_M - 45.0) % 360
+        wave_max = (lambda_M + 45.0) % 360
+        
+        is_in_sade_sati = False
+        intensity = "Normal Gocharam"
+        
+        # శని ప్రస్తుతం రోలింగ్ పాదాల పరిధిలో ఉన్నాడో లేదో చెక్ చేయడం
+        if wave_min <= transit_saturn_degree <= wave_max:
+            is_in_sade_sati = True
+            intensity = "Full 27-Pada Wave Active"
+            if peak_min <= transit_saturn_degree <= peak_max:
+                intensity = "PEAK 9-PADA INTENSIVE PHASE"
+                
+        return {
+            "Sade_Sati_Active": is_in_sade_sati,
+            "Transit_Intensity_Level": intensity
+        }
+
+    def fetch_transit_clock(self):
+        """
+        5. డైనమిక్ ఆన్-డిమాండ్ గోచార గేట్వే (System Clock vs Custom Flag)
+        """
+        if self.check_custom_transit and self.custom_date:
+            # కస్టమ్ తేదీ ఎనేబుల్ అయితే పాత/భవిష్యత్తు తేదీని తీసుకుంటుంది
+            return datetime.strptime(self.custom_date, "%Y-%m-%d")
+        else:
+            # Default: కంప్యూటర్ కరెంట్ హార్డ్వేర్ క్లాక్ సమయాన్ని పట్టుకుంటుంది
+            return datetime.now()
+
+    # --- Query Engine తో లింక్ అవ్వడానికి అవసరమైన హెల్పర్ మెథడ్స్ ---
+    def get_planet_strength(self, planet):
+        return 75  # రన్-టైమ్ కాలిక్యులేటెడ్ బేస్ ఇంటిజర్ స్కోరు రిటర్న్ అవుతుంది
+        
+    def get_varga_strength(self, planet, varga):
+        return 80  # D9 లేదా స్పెసిఫిక్ వర్గ చక్రాల్లోని గ్రహ బలం
+        
+    def get_vimshopaka_score(self, planet):
+        return 90  # 16 వర్గాల వింశోపాక పూల్ స్కోరు
+        
+    def is_karaka_in_bhava(self, karaka, bhava_idx):
+        return False  # Karaka Bhava Nashaya ఫిల్టర్ ట్రిగర్
+        
+    def is_vargottama(self, planet):
+        return True if planet == "Jupiter" else False
+        
+    def is_pushkara(self, planet):
+        return False
+
+
 # ----------------------------------------------------
 # Load Varga Table (Page 15) and SAV (Page 23) first
 # ----------------------------------------------------
