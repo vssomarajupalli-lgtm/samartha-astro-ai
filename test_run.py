@@ -14,7 +14,7 @@ def main():
         "current_antardasha": "Saturn",
         "current_pratyantardasha": "Mercury"
     }
-    astro_engine = SamarthaAstroEngine(canonical_data=mock_json_data)
+    astro_engine = SamarthaAstroEngine(json_file_path="raju_canonical_content.json")
 
     # 2. ప్రశ్నావళి ప్రెడిక్షన్ ఇంజన్ ని అనుసంధానించడం
     query_engine = SamarthaQueryEngine(graha_bala_engine=astro_engine)
